@@ -1,0 +1,75 @@
+<%- include header -%>
+
+<div class="row" id="signUpRow">
+    <div class="col s12 m4 offset-m4" >
+      <div class="card white" >
+        <div class="card-content black-text">
+          <span class="card-title">Login</span>
+         
+  <div class="row">
+    <form class="col s12" enctype="multipart/form-data" id="loginForm">
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="email" type="email" class="validate" >
+          <label for="email">Email</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="password" type="password" class="validate">
+          <label for="password">Password</label>
+        </div>
+      </div>
+      <div class="row center-align">
+        <button class="btn waves-effect waves-light indigo" type="submit" >Next
+            <i class="material-icons right">send</i>
+          </button>  
+            </div>
+      
+    </form>
+  </div>
+
+  
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!--  Scripts-->
+  <script src="materialize/js/materialize.js"></script>
+
+ 
+<script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+crossorigin="anonymous"></script>
+<script>
+ $(document).ready(function () {
+
+      $('#loginForm').on('submit', function () {
+        var email = $('#email').val();
+        var password = $('#password').val();
+        console.log(email)
+        console.log(password)
+        $.ajax({
+          type: 'POST',
+          url: 'users/login',
+          data: {email:email, password:password},
+          success: function (data) {
+            M.toast({ html: data.message })
+            window.location.href= "/accounts/user/"+data.userId;
+          },
+          error: function (xhr, ajaxOptions, thrownError, data) {
+            if (xhr.status >= 300) {
+              var data = JSON.parse(xhr.responseText);
+              M.toast({ html: data.message })
+            }
+          }
+        });
+        return false;
+
+      });
+    });
+    </script>
+</body>
+</html>
