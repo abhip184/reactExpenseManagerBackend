@@ -14,7 +14,14 @@ mongoose.connect('mongodb+srv://dbUser:'+
  process.env.mongopass +
  '@learning-cluster-gv442.mongodb.net/test?retryWrites=true&w=majority',{
      useNewUrlParser: true
- })
+ }).then(
+     ()=>{
+         console.log("connected to mongo cluster")
+     }
+ ).catch(err=>{
+    console.log(err);
+    console.log("failed to connect to Mongo cluster")
+});
 
  mongoose.Promise = global.Promise;
 app.use(morgan('dev'));

@@ -13,7 +13,6 @@ $(document).ready(function(){
               Cookies.set('email', data.email);
               Cookies.set('userId', data.userId);
               Cookies.set('firstName', data.firstName);
-              Cookies.set('token', data.token);
 
               console.log(data.userId)
               userId = data.userId;
@@ -45,7 +44,7 @@ $(document).ready(function(){
             url: 'accounts',
             data:{accountName:name, currentBalance:amount, owner:userId},
             success: function (data) {
-              window.location.href= "/accounts/user/"+userId;
+              window.location.href= "/login";
             },
             error:function (xhr, ajaxOptions, thrownError, data){
               if(xhr.status>=300) {

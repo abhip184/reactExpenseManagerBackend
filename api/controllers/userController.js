@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
 const User = require('../models/user');
+var nodemailer = require('nodemailer');
 exports.signup_user = async (req, res, next) => {
 
     console.log(req.body.password);
@@ -17,6 +18,11 @@ exports.signup_user = async (req, res, next) => {
             message: "email exists"
         })
     }
+
+    res.clearCookie("token");
+    res.clearCookie("userId");
+    res.clearCookie("firstName");
+    res.clearCookie("email");
 
 
 
@@ -58,8 +64,30 @@ exports.signup_user = async (req, res, next) => {
             })
         })
 
-    res.cookie('token', req.token);
-    res.cookie('firstName', req.body.firstName);
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'abhiabhiabhi123.ap@gmail.com',
+    pass: '#aaditya'
+  }
+});
+
+var mailOptions = {
+  from: 'abhiabhiabhi123.apgmail.com',
+  to: result.email,
+  subject: "Welcome"+ result.firstName,
+  html: '<h1>welcome to expense manager! </h1>'
+};
+
+transporter.sendMail(mailOptions, function(error, info){
+  if (error) {
+    console.log(error)
+  } else {
+    console.log('Email sent: ' + info.response);
+  }
+});
+
+    res.cookie('token', result.token);
     return res.status(201).json({
         message: "Sign up success",
         userId: result._id,
@@ -69,6 +97,12 @@ exports.signup_user = async (req, res, next) => {
 }
 
 exports.login_user = async (req, res, next) => {
+
+    res.clearCookie("token");
+    res.clearCookie("userId");
+    res.clearCookie("firstName");
+    res.clearCookie("email");
+
 
     var user = await User.find({ email: req.body.email })
 
@@ -90,18 +124,17 @@ exports.login_user = async (req, res, next) => {
         },
             process.env.jwtkey,
             {
-                expiresIn: "1h"
+                expiresIn: "24h"
             }
         );
 
-        res.cookie('token', token)
-        res.cookie('userId', user[0]._id)
-        res.cookie('firstName', user[0].firstName)
     
         return res.status(200).json({
             message: 'login success !!',
             userId: user[0]._id,
-            token: token
+            token: token,
+            email:user[0].email,
+            firstName:user[0].firstName
         })
     }
     else {
@@ -112,22 +145,10 @@ exports.login_user = async (req, res, next) => {
 }
 }
 
-    exports.delete_user = (req, res, next) => {
-        User.remove({ _id: req.params.id })
-            .exec()
-            .then(result => {
-                res.status(200).json({
-                    message: "user deleted"
-                })
-            })
-            .catch(err => {
-                res.status(500).json({
-                    error: err
-                })
-            })
-    }
-
     exports.logout = (req, res, next) => {
-        res.cookie('token', '')
+        res.clearCookie("token");
+        res.clearCookie("userId");
+        res.clearCookie("firstName");
+        res.clearCookie("email");
         res.render('index');
     }

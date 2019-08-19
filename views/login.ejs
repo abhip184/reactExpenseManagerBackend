@@ -56,6 +56,10 @@ crossorigin="anonymous"></script>
           url: 'users/login',
           data: {email:email, password:password},
           success: function (data) {
+            Cookies.set('token', data.token);
+            Cookies.set('email', data.email);
+              Cookies.set('userId', data.userId);
+              Cookies.set('firstName', data.firstName);
             M.toast({ html: data.message })
             window.location.href= "/accounts/user/"+data.userId;
           },

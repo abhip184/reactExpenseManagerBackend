@@ -2,214 +2,346 @@
 <html lang="en">
 
 <head>
-
+  <title>Dashboard</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0" />
-  <title>Welcome</title>
 
+  <!-- materialize css and animate css links -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="/materialize/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+  <!-- jquery and cookie CDNs -->
   <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 </head>
 
 <body>
+  <!-- navbar starts here -->
   <nav class="indigo" role="navigation">
-    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Expense Manager</a>
+    <div class="nav-wrapper container"><a class="flow-text">Expense Manager</a>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
-        <li><a href="/users/logout">logout</a></li>
-        <li id="userIntro"></li>
-      </ul>
-
+          <li id="userIntro"></li>
+      <li><a href="#yourAccounts">Your Accounts</a></li>
+      <li><a href="#friendAccount">Friend Accounts</a></li>
+      <li><a href="/users/logout">logout</a></li>
+    </ul>
     </div>
   </nav>
+  <ul class="sidenav" id="mobile-demo">
+      <li><a href="/users/logout">logout</a></li>
+      <ul class="section table-of-contents">
+          <li><a href="#yourAccounts">Your Accounts</a></li>
+          <li><a href="#friendAccount">friendAccount</a></li>
+        </ul>
+    </ul>
+  <div class="col hide-on-small-only m3 l2 right">
+     
+    </div>
+  <!-- navbar closed -->
+
+  <!-- Main body starts here -->
   <main>
+
+    <!-- Account container contains cards of accounts of current user -->
     <div class="container">
-      <p class="flow-text"> Your Accounts</p>
+      <!-- headers -->
+      <br>
+      <span class="section scrollspy flow-text" id="yourAccounts" class=> Your Accounts</span><span class="right"><i>Manage personal accounts</i></span>
       <hr>
-      <div style="height: 20rem; overflow-y: scroll">
-        <div class="row">
+      <!-- loop through data which was pased from backed api getAccountByUserId -->
+      <div class="row">
           <% data.forEach(function(account){ %>
           <div class="col s12 m4">
-            <div class="card white">
-              <div class="card-action">
-                <span class="card-title indigo-text bold"> <%= account.accountName %></span>
-                <span class="right">
-                  <a class='dropdown-trigger' href='#' data-target='dropdown1'>
-                    <i class="material-icons black-text">more_vert</i>
-                  </a>
-                </span>
-                <hr>
-
-              </div>
-              <div class="card-content black-text">
-                <div class="row">
-                  <div class="col s12">
-                    <span class="flow-text black-text"> current balance <%= account.currentBalance %> Rs.</span>
+              <div class="card white hoverable z-depth-2">
+                  <div class="card-content">
+                    <span class="card-title indigo-text"><strong>  <%= account.accountName %> 
+                      <a class=' right white-text dropdown-trigger idHolder'data-target='"dp1"'>
+                        <i class="material-icons">more_vert</i>
+                      </a> </strong></span>
+                    <blockquote> Owner  </blockquote>
+                     <%= account.owner.email %>   
+                  <% if(account.invites.length > 0) { %>
+                    <blockquote>shared With <%=account.invites.length%> friends</blockquote>
+                        <i class="truncate">
+                                <% for(i=0;i < account.invites.length; i++)
+                                { %>
+                                  <%= account.invites[i] %>,
+                                <%}%>
+                              </i>
+                      <%}else{%>
+                        <blockquote>Not Shared</blockquote>
+                        <%}%>
                   </div>
+                  <div class="card-action indigo darken-4 ">
+                      <a href="/transections/<%= account._id %>" class="white-text">View Account</a>
+                    </div>
                 </div>
-              </div>
-              <div class="card-action">
-                <a href="#">View Account</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dropdown Structure -->
-          <ul id='dropdown1' class='dropdown-content black-text' style="width: 800px !important">
-            <li><a href="#<%= account._id %>" class="modal-trigger">edit name</a></li>
-            <li><a href="#!">remove account</a></li>
-          </ul>
-
-          <!-- Modal edit account -->
-          <div id='<%= account._id %>' class="modal small">
-            <div class="modal-content">
-              <h4>Enter New Name</h4>
-              <div class="row">
-                <form id="editAccountNameForm">
-                  <div class="input-field col s8">
-                    <i class="material-icons prefix">mode_edit</i>
-                    <input id="newName" type="text" class="validate">
-                    <input id="accountId" type="hidden" value="<%= account._id %>">
-                  </div>
-                  <button class="btn waves-effect waves-light indigo col s3 right" type="submit">
-                    Change
-                    <i class="material-icons right">send</i>
-                  </button>
-                </form>
-              </div>
-            </div>
           </div>
           <% }); %>
+     
+      </div>
+      </div>
+    
+      <div class="container">
+          <!-- headers -->
+          <br>
+          <span class="flow-text section scrollspy" id="friendAccount">  friends Accounts</span>
+          <span class="right"><i>accounts shared by your friends to transfer amount </i></span>
+          <hr>
+          <!-- loop through data which was pased from backed api getAccountByUserId -->
+          <div class="row">
+              <% friend.forEach(function(account){ %>
+              <div class="col s12 m4">
+                  <div class="card white hoverable z-depth-2">
+                      <div class="card-content">
+                        <span class="card-title indigo-text"><strong>  <%= account.accountName %> 
+                          <a class=' right white-text dropdown-trigger idHolder'data-target='"dp1"'>
+                            <i class="material-icons">more_vert</i>
+                          </a> </strong></span>
+                        <p></br>
+                          <blockquote> Owner <%= account.owner.firstName %> </blockquote>
+                     <%= account.owner.email %>   
+                  <% if(account.invites.length > 0) { %>
+                    <blockquote>shared With <%=account.invites.length%> friends</blockquote>
+                        <i class="truncate">
+                                <% for(i=0;i < account.invites.length; i++)
+                                { %>
+                                  <%= account.invites[i] %>,
+                                <%}%>
+                              </i>
+                      <%}else{%>
+                        <blockquote>Not Shared</blockquote>
+                        <%}%>
+                                            </div>
+                      <div class="card-action indigo darken-4 ">
+                          <a href="/transections/<%= account._id %>" class="white-text">View Account</a>
+                        </div>
+                    </div>
+              </div>
+              <% }); %>
+          </div>
+          </div>
+    
+    <!-- loop and container ends -->
+
+    <!-- Dropdown menu Structure to edit and remove account -->
+    <ul id='"dp1"' class='dropdown-content black-text' style="width: 800px !important">
+      <li><a href="#editNameModal" class="modal-trigger">edit name</a></li>
+      <li><a class="modal-trigger" href="#deleteModal">Modal</a></li>
+    </ul>
+
+
+    <!-- Modal Structure for delete account  -->
+    <div id="deleteModal" class="modal bottom-sheet">
+      <div class="modal-content">
+        <p class="flow-text"> <span><i class="material-icons red-text  animated infinite tada">delete</i>
+            Are you sure to delete Account ? </span>
+          <button class="btn waves-effect waves-light indigo right large" id="deleteButton"> Yes
+            <i class="material-icons right">check</i>
+          </button>
+        </p>
+        <p></p>
+      </div>
+
+    </div>
+
+    <!-- Modal Structure for edit account -->
+    <div id='editNameModal' class="modal bottom-sheet">
+      <div class="modal-content">
+        <h4>Enter New Name</h4>
+        <div class="row">
+          <form id="editAccountNameForm">
+            <div class="input-field col s8">
+              <i class="material-icons prefix ">mode_edit</i>
+              <input id="newName" type="text" class="validate">
+            </div>
+            <button class="btn waves-effect waves-light indigo col s3 right" type="submit">
+              Change
+              <i class="material-icons right">send</i>
+            </button>
+          </form>
         </div>
       </div>
-      <p class="flow-text"> friends Accounts</p>
-      <hr>
     </div>
-  </main>
 
+    <!-- Fab button to add new account -->
+    <div class="fixed-action-btn">
+      <a class="btn-floating btn-large red modal-trigger tooltipped" data-position="left" data-tooltip="Add Account"
+        href="#addacc">
+        <i class="large material-icons">mode_edit</i>
+      </a>
+    </div>
 
+    <!-- model structure for add new account -->
+    <div id='addacc' class="modal bottom-sheet ">
 
+      <div class="modal-content">
+        <h4>Add Account </h4>
 
+        <div class="row">
 
-  <div class="fixed-action-btn">
-    <a class="btn-floating btn-large red modal-trigger tooltipped" data-position="left" data-tooltip="Add Account"
-      href="#addacc">
-      <i class="large material-icons">mode_edit</i>
-    </a>
-  </div>
-  <div id='addacc' class="modal small">
-    <div class="modal-content">
-      <h4>Enter New Name </h4>
+          <form class="col s12" enctype="multipart/form-data" id="addAccountForm">
 
-      <div class="row">
-        <form class="col s12" enctype="multipart/form-data" id="addAccountForm">
-          <div class="row">
-            <div class="input-field col s6">
-              <input id="account_name" type="text" placeholder="Ex. General, Personal, " class="validate" required>
-              <label for="account_name">Account Name</label>
+            <div class="row">
+              <div class="input-field col s6">
+                <input id="account_name" type="text" placeholder="Ex. General, Personal, " class="validate" required>
+                <label for="account_name">Account Name</label>
+              </div>
+
+              <div class="input-field col s6">
+                <input id="account_amount" type="number" class="validate" required>
+                <label for="account_amount">Initial Amount</label>
+              </div>
+
             </div>
-            <div class="input-field col s6">
-              <input id="account_amount" type="number" class="validate" required>
-              <label for="account_amount">Initial Amount</label>
-            </div>
-          </div>
-          <button class="btn waves-effect waves-light indigo" type="submit">Sign Up
-            <i class="material-icons right">send</i>
-          </button>
 
+            <button class="btn waves-effect waves-light indigo right" type="submit"> Add
+              <i class="material-icons right">send</i>
+            </button>
 
-        </form>
+          </form>
+
+        </div>
 
       </div>
-
     </div>
-  </div>
+
+
+  </main>
+  <!-- main ends -->
 
 
 
 
 
-  <!--  Scripts-->
+
+  <!--  Ajax and material scripts -->
 
 
   <script>
     $(document).ready(function () {
+      // material scripts 
       $('.modal').modal();
-    });
-    $(document).ready(function () {
-      var userIntro = Cookies.get('firstName')
-      console.log(userIntro)
-      $('#userIntro').text("Hello " + userIntro)
-
-
       $('.tooltipped').tooltip();
-      $('.dropdown-trigger').dropdown({ hover: true, constrainWidth: false });
+      $('.dropdown-trigger').dropdown({
+        constrainWidth: false
+      });
       $('.fixed-action-btn').floatingActionButton();
+      $('.sidenav').sidenav();
 
 
-      $('#editAccountNameForm').on('submit', function () {
-        var newName = $('#newName').val();
-        var accountId = $('#accountId').val();
-        console.log(accountId);
+      // idHolder to hold the id of account which is clicked for any action from dropdown structure
+      var idHolder;
+      $(".idHolder").on('click', function () {
+        idHolder = $(this).attr('id')
+        console.log(idHolder)
+      })
+
+      //Handling delete account request without page reload
+      $('#deleteButton').click(function () {
         $.ajax({
-          type: 'PATCH',
-          url: '/accounts/' + accountId,
-          // data: JSON.stringify([{"propName":"accountName","value":newName}]),
-          data: { data: JSON.stringify([{ propName: "accountName", value: newName }]) },
+          type: 'DELETE',
+          url: '/accounts/' + idHolder,
           success: function (data) {
             $('.modal').modal('close');
-            M.toast({ html: data.message })
-            setTimeout(function () {
-              location.reload()
-            }, 2000)
+            console.log(data)
+            M.toast({
+              html: "Account deleted"
+            })
+            $('#' + idHolder).parent().parent().parent().fadeOut();
+            //location.reload()
           },
           error: function (xhr, ajaxOptions, thrownError, data) {
             if (xhr.status >= 300) {
               var data = JSON.parse(xhr.responseText);
-              M.toast({ html: data.message })
+              M.toast({
+                html: data.err
+              })
             }
           }
         });
+      })
 
+      //setting up user introduction at navbar from cookie pushed at login time
+
+      var userIntro = Cookies.get('firstName')
+      console.log(userIntro)
+      $('#userIntro').text("Hello " + userIntro)
+
+      //Handling Edit account name Without reloading page 
+      $('#editAccountNameForm').on('submit', function () {
+        var newName = $('#newName').val();
+        var accountId = idHolder;
+        console.log(accountId);
+
+        $.ajax({
+          type: 'PATCH',
+          url: '/accounts/' + accountId,
+          // data: JSON.stringify([{"propName":"accountName","value":newName}]),
+          data: {
+            data: JSON.stringify([{
+              propName: "accountName",
+              value: newName
+            }])
+          },
+          success: function (data) {
+            $('.modal').modal('close');
+            M.toast({
+              html: data.message
+            })
+            $('#' + idHolder).parent().siblings().text(newName)
+            // location.reload()
+          },
+          error: function (xhr, ajaxOptions, thrownError, data) {
+            if (xhr.status >= 300) {
+              var data = JSON.parse(xhr.responseText);
+              M.toast({ html: data.message})
+            }
+          }
+        });
         return false;
-
       });
 
+      //Handling add new account with reloading page 
+      $('#addAccountForm').on('submit', function () {
 
-      $('#addAccountForm').on('submit', function(){
-    
         var userId = Cookies.get('userId');
         var name = $('#account_name').val();
         var amount = $('#account_amount').val();
-          $.ajax({
-            type: 'POST',
-            url: '/accounts',
-            data:{accountName:name, currentBalance:amount, owner:userId},
-            success: function (data) {
-              M.toast({ html: data.message })
-              location.reload();
-            },
-            error:function (xhr, ajaxOptions, thrownError, data){
-              if(xhr.status>=300) {
-                var data = JSON.parse(xhr.responseText);
-                M.toast({ html: data.message })
-              }
+        console.log(userId)
+
+        $.ajax({
+          type: 'POST',
+          url: '/accounts',
+          data: {
+            accountName: name,
+            currentBalance: amount,
+            owner: userId
+          },
+          success: function (data) {
+            M.toast({
+              html: data.message
+            })
+            location.reload();
+          },
+          error: function (xhr, ajaxOptions, thrownError, data) {
+            if (xhr.status >= 300) {
+              var data = JSON.parse(xhr.responseText);
+              M.toast({
+                html: data.message
+              })
+            }
           }
-          });
-    
-         return false;
-    
+        });
+        return false;
       });
     });
-
-
   </script>
 
-  <script src="/materialize/js/materialize.js">
-  </script>
+<!-- adding material js  -->
+  <script src="/materialize/js/materialize.js"></script>
 </body>
-
-
 </html>

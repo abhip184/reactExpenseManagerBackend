@@ -3,11 +3,20 @@ module.exports = (req, res, next) => {
     var token
     try{
     var token = req.cookies.token
-    console.log(token);
+    console.log("token"+req.cookies.email);
     const decoded = jwt.verify(token, process.env.jwtkey);
     req.userAuth = decoded;
-    console.log(req.userAuth);
-    next()
+    console.log(decoded)
+    if(req.userAuth.email == req.cookies.email && req.userAuth.id == req.cookies.userId)
+    {
+        console.log("auth pass");
+        next()
+    }
+    else
+    {
+        return res.render('index')
+    }
+   
     }
     catch(err)
     {
