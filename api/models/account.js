@@ -6,10 +6,8 @@ const accountSchema = mongoose.Schema({
     currentBalance:{type: Number, required:true},
     owner:{type: mongoose.Schema.Types.ObjectId, ref:'User', required:true},
     invites:[{type:String,}],
-}).pre('find', function(next) {
-    console.log("pre accounts find success hurrreee!!!!!!!!!!!!!!!!")
-    next();
-  })
+})
+
  accountSchema.post('save', function(doc) {
     console.log('%s has been saved', doc._id);
   });

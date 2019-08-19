@@ -15,238 +15,261 @@
     <script src="https://code.jquery.com/jquery-1.12.4.js"
         integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
 </head>
 
 <body>
     <!-- navbar starts here -->
     <nav class="indigo" role="navigation">
-        <div class="nav-wrapper container flow-text">Expense Manager
-                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <div class="nav-wrapper container"><a class="flow-text">Expense Manager</a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
             <ul class="right hide-on-med-and-down">
+                <li id="userIntro"></li>
                 <li><a href="/users/logout">logout</a></li>
                 <li><a href="/accounts/user/<%= currentUser %>">Dashboard</a></li>
-                <li id="userIntro"></li>
+                
             </ul>
 
         </div>
     </nav>
+    <div class="progress">
+            <div class="indeterminate indigo"></div>
+        </div>
+    <!-- side menyu when screen size is mobile -->
     <ul class="sidenav" id="mobile-demo">
         <li><a href="/users/logout">logout</a></li>
-        <li><a href="/accounts/user/<%= data._id %>">Dashboard</a></li>
-      </ul>
+        <li><a href="/accounts/user/<%= currentUser %>">Dashboard</a></li>
+    </ul>
     <!-- navbar closed -->
 
     <!-- Main body starts here -->
     <main>
+        <!-- accessing current account and account's owner information  -->
         <div class="container">
             <div class="card-panel indigo">
                 <span class="white-text flow-text"><%=ownerInfo.accountName%></span>
                 <span class="white-text flow-text right" id="balanceHolder">Updating Balance</span>
                 <br>
-                <i class="white-text">Owner:- <%=ownerInfo.owner.firstName%> 
+                <i class="white-text">Owner:- <%=ownerInfo.owner.firstName%>
                     <% if(ownerInfo.invites.length <= 0) { %>
-                       <span class="right"> Not shared </span>
-                        <%} else {%>
-                            <span class="right truncate">shared-with: <%=ownerInfo.invites%> </span>
+                    <span class="right"> Not shared </span>
+                    <%} else {%>
+                    <span class="right hide-on-med-and-down">shared-with: <%=ownerInfo.invites%> </span>
+                    <span class="right hide-on-med-and-up">shared-with: <%=ownerInfo.invites.length%> </span>
                     <%}%>
                 </i>
 
             </div>
+
+            <!-- Fatching Transections for this account -->
             <ul class="collection">
                 <% if(data.length <= 0) { %>
-                <p>No transection found</p>
-                <%}%>
-                            <% data.forEach(function(data){ %>
-                <li class="collection-item avatar">
-                    <% if (data.type == "income"){ %>
-                    <i class="material-icons circle green">trending_up</i>
-                    <%} else if (data.type == "expense") {%>
-                    <i class="material-icons circle red">trending_down</i>
-                    <% } else{%>
-                    <i class="material-icons circle indigo">swap_vert</i>
+                    <p>No transection found</p>
                     <%}%>
-                          <span class="title"><%= data.amount %> for </span>
-                    <span> <%= data.category %></span>
-                    <span class="right"><%= new Date(data.atDate).toDateString() %></span>
-                    <p> <% if(data.type == "income"){ %>
-                        creadited by owner
-                        <% }else if(data.type == "transfer"){ %>
-                        <%=data.from.firstName %> to <%=ownerInfo.owner.firstName%> 
-                        <% } else{ %>
-                        debited by owner
-                        <% } %>
-                    </p>
-                    <% if(owner || (data.type == "transfer" && data.from._id == currentUser)){%>
-                    <a class="btn white z-depth-1 indigo-text right idHolder modal-trigger" href="#editTransection"
-                        id="<%= data._id %>">EDIT</a>
-                    <a class="btn white z-depth-1 red-text right idHolder modal-trigger" href="#deleteModal"
-                        id="<%= data._id %>">DELETE</a>
-                    <% }else{ %>
-                    <a class="btn disabled right">EDIT</a>
-                    <a class="btn disabled right">DELETE</a>
-                    <%} })%>
-                </li>
-            </ul>
-
-
-
-        </div>
-
-        <!-- Fab button to add new account -->
-        <div class="fixed-action-btn">
-            <a class="btn-floating btn-large red " data-position="left" data-tooltip="Add transection">
-                <i class="large material-icons">mode_edit</i>
-            </a>
-            <ul>
-                <li>
-                    <a class="btn-floating indigo modal-trigger tooltipped" data-position="left"
-                        data-tooltip="Add Friends" href="#addFriend">
-                        <i class="large material-icons">group_add</i>
-                    </a>
-
-                </li>
-                <li>
-                    <a class="btn-floating pink modal-trigger tooltipped" data-position="left"
-                        data-tooltip="Add transection" href="#addTransection">
-                        <i class="large material-icons">playlist_add</i>
-                    </a>
-
-                </li>
-        </div>
-
-        <!-- model structure for add new Friend -->
-        <div id='addFriend' class="modal bottom-sheet ">
-
-            <div class="modal-content">
-                <h4>Add Friend to this account </h4>
-
-                <div class="row">
-
-                    <form class="col s12" enctype="multipart/form-data" id="addFriendForm">
-
-                        <div class="row">
-                            <div class="input-field col s9">
-                                <input id="friendEmail" type="email" class="validate" required>
-                                <label for="friendEmail">Friend's email</label>
-                            </div>
-
-                            <input id="accountId" type="hidden" value="<%= accountId%>" required>
-                            <input id="ownerId" type="hidden" value="<%=ownerInfo.owner._id%>" required>
-
-                            <div class="input-field col s3">
-                                <button class="btn waves-effect waves-light indigo right" type="submit"> Add
-                                    <i class="material-icons right">send</i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <!-- edit transection model -->
-        <div id='editTransection' class="modal bottom-sheet ">
-
-            <div class="modal-content">
-                <div class="row" style="border: 1px">
-                    <form class="col s12" enctype="multipart/form-data" id="editTransectionForm">
-                        <div class="row">
-                            <div class="input-field col s12 m4 l4">
-                                <input id="newCategory" type="text" placeholder="Ex. shopping, general">
-                                <label for="newCategory">New Category </label>
-                            </div>
-                            <div class="input-field col s12 m5 l5">
-                                <input id="newAmount" type="number" class="validate" required>
-                                <label for="newAmount">New Amount</label>
-                            </div>
-
-                            <div class="input-field col s12 m3 l3">
-                                <button class="btn waves-effect waves-light indigo right" type="submit"> Add
-                                    <i class="material-icons right">send</i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Structure for delete transection  -->
-        <div id="deleteModal" class="modal bottom-sheet">
-            <div class="modal-content">
-                <p class="flow-text"> <span><i class="material-icons red-text  animated infinite tada">delete</i>
-                        Are you sure to delete Account ? </span>
-                    <button class="btn waves-effect waves-light indigo right large" id="deleteButton"> Yes
-                        <i class="material-icons right">check</i>
-                    </button>
-                </p>
-                <p></p>
-            </div>
-
-        </div>
-        <!-- model structure for add new Transection-->
-        <div id='addTransection' class="modal bottom-sheet ">
-
-            <div class="modal-content">
-                <div class="row" style="border: 1px">
-                    <form class="col s12" enctype="multipart/form-data" id="addTransectionForm">
-                        <div class="row">
-
-                            <% if(owner){ %>
-                            <h4>Add Transection</h4>
-
-                            <div class="col s12 m12 l12">
-                                <label>choose type:-</label>
-                                <label class="indigo-text">
-                                    <input name="transectionType" type="radio" value="income" />
-                                    <span>Income</span>
-                                </label>
-
-                                <label class="indigo-text">
-                                    <input name="transectionType" type="radio" value="expense" />
-                                    <span>Expense</span>
-                                </label>
-                                <label class="tooltipped" data-position="bottom"
-                                    data-tooltip="Cant't transfer to own account">
-                                    <input name="transectionType" type="radio" value="expense" disabled="disabled" />
-                                    <span>Transfer</span>
-                                </label>
-                                <input id="mode" type="hidden" value="incEx" />
-                            </div>
+                            <% data.forEach(function(data){ %>
+                    <li class="collection-item avatar">
+                        <!-- choosing incon based on transection type  -->
+                        <% if (data.type == "income"){ %>
+                        <i class="material-icons circle green">trending_up</i>
+                        <%} else if (data.type == "expense") {%>
+                        <i class="material-icons circle red">trending_down</i>
+                        <% } else{%>
+                        <i class="material-icons circle indigo">swap_vert</i>
+                        <%}%>
+                          <span class="title"><%= data.amount %>Rs -: </span>
+                        <span> <%= data.category %></span>
+                        <span class="right"><%= new Date(data.atDate).toDateString() %></span>
+                        <p> <% if(data.type == "income"){ %>
+                            creadited by owner
+                            <% }else if(data.type == "transfer"){ %>
+                            <%=data.from.firstName %> to <%=data.to.firstName%>
                             <% } else{ %>
-                            <p class="flow-text">transfer to <%=ownerInfo.owner.firstName%> </p>
-                            <input id="mode" type="hidden" value="transfer" />
-
-                            <div class="input-field col s12 m6">
-                                <select id="fromAccount">
-                                    <% accountsForOwner.forEach(function(data){ %>
-
-                                    <option value="<%=data._id%>" selected><%=data.accountName%> &nbsp; Rs.<%=data.currentBalance%></option>
-                                    <%})%>
-                                </select>
-                                <label>Select your Account</label>
-                            </div>
+                            debited by owner
                             <% } %>
-                            <div class="input-field col s12 m4 l4">
-                                <input id="category" type="text" placeholder="Ex. shopping, general">
-                                <label for="category">Enter Category </label>
-                            </div>
-                            <div class="input-field col s12 m5 l5">
-                                <input id="amount" type="number" class="validate" required>
-                                <label for="amount">Enter Amount</label>
-                            </div>
+                        </p>
+
+                        <!-- decide actions on transection based on     
+                        (users is owner or not and if not owner then if transection is initiated by him or not)  -->
+                        <% if(owner  || (data.type == "transfer" && data.from._id == currentUser)){
+                            %>
+                        <a class="btn white z-depth-1 indigo-text right idHolder modal-trigger" href="#editTransection"
+                            id="<%= data._id %>">EDIT</a>
+                        <a class="btn white z-depth-1 red-text right idHolder modal-trigger" href="#deleteModal"
+                            id="<%= data._id %>">DELETE</a>
+                        <% }else{ %>
+                        <a class="btn disabled right">EDIT</a>
+                        <a class="btn disabled right">DELETE</a>
+                        <%} })%>
+                    </li>
+                    </ul>
 
 
-                            <input id="accountId" type="hidden" value="<%= accountId%>" required>
-                            <div class="input-field col s12 m3 l3">
-                                <button class="btn waves-effect waves-light indigo right" type="submit"> Add
-                                    <i class="material-icons right">send</i>
-                                </button>
+
+            </div>
+
+            <!-- Fab button to add new account -->
+            <div class="fixed-action-btn">
+                <a class="btn-floating btn-large red " data-position="left" data-tooltip="Add transection">
+                    <i class="large material-icons">mode_edit</i>
+                </a>
+                <ul>
+                    <% if(owner)
+                    {%>
+                    <li>
+                        <a class="btn-floating indigo modal-trigger tooltipped" data-position="left"
+                            data-tooltip="Add Friends" href="#addFriend">
+                            <i class="large material-icons">group_add</i>
+                        </a>
+
+                    </li>
+                    <%}%>
+                    <li>
+                        <a class="btn-floating pink modal-trigger tooltipped" data-position="left"
+                            data-tooltip="Add transection" href="#addTransection">
+                            <i class="large material-icons">playlist_add</i>
+                        </a>
+
+                    </li>
+            </div>
+
+            <!-- model structure for add new Friend -->
+            <div id='addFriend' class="modal bottom-sheet ">
+
+                <div class="modal-content">
+                    <h4>Add Friend to this account </h4>
+
+                    <div class="row">
+
+                        <form class="col s12" enctype="multipart/form-data" id="addFriendForm">
+
+                            <div class="row">
+                                <div class="input-field col s9">
+                                    <input id="friendEmail" type="email" class="validate" required>
+                                    <label for="friendEmail">Friend's email</label>
+                                </div>
+
+                                <input id="accountId" type="hidden" value="<%= accountId%>" required>
+                                <input id="ownerId" type="hidden" value="<%=ownerInfo.owner._id%>" required>
+
+                                <div class="input-field col s3">
+                                    <button class="btn waves-effect waves-light indigo right" type="submit"> Add
+                                        <i class="material-icons right">send</i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
+            <!-- edit transection model -->
+            <div id='editTransection' class="modal bottom-sheet ">
+
+                <div class="modal-content">
+                    <div class="row" style="border: 1px">
+                        <form class="col s12" enctype="multipart/form-data" id="editTransectionForm">
+                            <div class="row">
+                                <div class="input-field col s12 m4 l4">
+                                    <input id="newCategory" type="text" placeholder="Ex. shopping, general">
+                                    <label for="newCategory">New Category </label>
+                                </div>
+                                <div class="input-field col s12 m5 l5">
+                                    <input id="newAmount" type="number" class="validate" required>
+                                    <label for="newAmount">New Amount</label>
+                                </div>
+
+                                <div class="input-field col s12 m3 l3">
+                                    <button class="btn waves-effect waves-light indigo right" type="submit"> OK
+                                        <i class="material-icons right">send</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Structure for delete transection  -->
+            <div id="deleteModal" class="modal bottom-sheet">
+                <div class="modal-content">
+                    <p class="flow-text"> <span><i class="material-icons red-text  animated infinite tada">delete</i>
+                            Are you sure to delete Transection ? </span>
+                        <button class="btn waves-effect waves-light indigo right large" id="deleteButton"> Yes
+                            <i class="material-icons right">check</i>
+                        </button>
+                    </p>
+                    <p></p>
+                </div>
+
+            </div>
+            <!-- model structure for add new Transection-->
+            <div id='addTransection' class="modal bottom-sheet ">
+
+                <div class="modal-content">
+                    <div class="row" style="border: 1px">
+                        <form class="col s12" enctype="multipart/form-data" id="addTransectionForm">
+                            <div class="row">
+
+                                <!-- if owner then can't transfer to current account
+                                if friend's account then transfer -->
+                                <% if(owner){ %>
+                                <h4>Add Transection</h4>
+
+                                <div class="col s12 m12 l12">
+                                    <label>choose type:-</label>
+                                    <label class="indigo-text">
+                                        <input name="transectionType" type="radio" value="income" />
+                                        <span>Income</span>
+                                    </label>
+
+                                    <label class="indigo-text">
+                                        <input name="transectionType" type="radio" value="expense" />
+                                        <span>Expense</span>
+                                    </label>
+                                    <label class="tooltipped" data-position="bottom"
+                                        data-tooltip="Cant't transfer to own account">
+                                        <input name="transectionType" type="radio" value="expense"
+                                            disabled="disabled" />
+                                        <span>Transfer</span>
+                                    </label>
+                                    <input id="mode" type="hidden" value="incEx" />
+                                </div>
+                                <% } else{ %>
+                                <p class="flow-text">transfer to <%=ownerInfo.owner.firstName%> </p>
+                                <input id="mode" type="hidden" value="transfer" />
+
+                                <div class="input-field col s12 m6">
+                                    <select id="fromAccount">
+                                        <% accountsForOwner.forEach(function(data){ %>
+
+                                        <option value="<%=data._id%>" selected><%=data.accountName%> &nbsp;
+                                            Rs.<%=data.currentBalance%></option>
+                                        <%})%>
+                                    </select>
+                                    <label>Select your Account</label>
+                                </div>
+                                <% } %>
+                                <div class="input-field col s12 m4 l4">
+                                    <input id="category" type="text" placeholder="Ex. shopping, general">
+                                    <label for="category">Enter Category </label>
+                                </div>
+                                <div class="input-field col s12 m5 l5">
+                                    <input id="amount" type="number" class="validate" required>
+                                    <label for="amount">Enter Amount</label>
+                                </div>
+
+
+                                <input id="accountId" type="hidden" value="<%= accountId%>" required>
+                                <div class="input-field col s12 m3 l3">
+                                    <button class="btn waves-effect waves-light indigo right" type="submit"> Add
+                                        <i class="material-icons right">send</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
     </main>
     <!--  Ajax and material scripts -->
 
@@ -263,12 +286,19 @@
             $('.fixed-action-btn').floatingActionButton();
             $('.sidenav').sidenav();
 
+            var userIntro = Cookies.get('firstName')
+      console.log(userIntro)
+      $('#userIntro').text("Hello " + userIntro)
 
+            // global from cookies and hidden fields
             const accountId = $('#accountId').val()
             console.log(accountId);
             var userId = Cookies.get('userId')
             console.log(userId)
+            const mode = $('#mode').val()
+            console.log(mode)
 
+            // id holder to edit delete transections
             var idHolder;
             $(".idHolder").on('click', function () {
                 idHolder = $(this).attr('id')
@@ -284,7 +314,7 @@
                         $('.modal').modal('close');
                         console.log(data)
                         M.toast({
-                            html: "Account deleted"
+                            html: data.message
                         })
                         // $('#' + idHolder).parent().parent().parent().fadeOut();
                         location.reload()
@@ -299,16 +329,15 @@
                     }
                 });
             })
-            //edit transection
 
+
+            //handling edit transection
             $('#editTransectionForm').on('submit', function (e) {
                 e.preventDefault();
 
                 const newCategory = $('#newCategory').val()
                 const newAmount = $('#newAmount').val()
-                alert("edit transection");
 
-                // edit transections
                 $.ajax({
                     type: 'PATCH',
                     url: '/transections/' + idHolder,
@@ -345,7 +374,7 @@
             });
 
 
-            //getting updated balance
+            //getting updated balance  when document is ready
             $.ajax({
                 type: 'GET',
                 url: '/transections/balance/' + accountId,
@@ -366,9 +395,9 @@
                     }
                 }
             });
-            const mode = $('#mode').val()
 
-console.log(mode)
+
+  
             //Add transection 
 
             $('#addTransectionForm').on('submit', function () {
@@ -379,47 +408,44 @@ console.log(mode)
                 const amount = $('#amount').val()
                 var transectionType = $("input[name='transectionType']:checked").val();
                 const fromAccount = $("#fromAccount").val();
-                
+
 
                 if (mode == "transfer") {
 
-                    alert(fromAccount);
 
-                // adding transections
-                $.ajax({
-                    type: 'POST',
-                    url: '/transections',
-                    data: {
-                        to:ownerId,
-                        from:Cookies.get('userId'),
-                        category: category,
-                        toAccount:accountId,
-                        fromAccount:fromAccount,
-                        type: "transfer",
-                        amount: amount
-                    },
-                    success: function (data) {
-                        $('.modal').modal('close');
-                        console.log(data)
-                        M.toast({
-                            html: "transfer saved"
-                        })
-                        return false
-                        // location.reload()
-                    },
-                    error: function (xhr, ajaxOptions, thrownError, data) {
-                        if (xhr.status >= 300) {
-                            var data = JSON.parse(xhr.responseText);
+                    // adding transfer type transections
+                    $.ajax({
+                        type: 'POST',
+                        url: '/transections',
+                        data: {
+                            to: ownerId,
+                            from: Cookies.get('userId'),
+                            category: category,
+                            toAccount: accountId,
+                            fromAccount: fromAccount,
+                            type: "transfer",
+                            amount: amount
+                        },
+                        success: function (data) {
+                            $('.modal').modal('close');
+                            console.log(data)
                             M.toast({
-                                html: data.err
+                                html: "transfer saved"
                             })
+                            return false
+                            // location.reload()
+                        },
+                        error: function (xhr, ajaxOptions, thrownError, data) {
+                            if (xhr.status >= 300) {
+                                var data = JSON.parse(xhr.responseText);
+                                M.toast({
+                                    html: data.err
+                                })
+                            }
                         }
-                    }
-                });
+                    });
                 } else {
-                    alert("in InEx mode");
-
-                    // adding transections
+                    // adding income expense type transections
                     $.ajax({
                         type: 'POST',
                         url: '/transections',
@@ -450,10 +476,10 @@ console.log(mode)
                 }
 
             });
+
             //Handling Add friend from
             $('#addFriendForm').on('submit', function () {
                 var friendEmail = $('#friendEmail').val()
-                alert("hello");
                 $.ajax({
                     type: 'PATCH',
                     url: '/accounts/addFriend/' + accountId,
@@ -464,7 +490,7 @@ console.log(mode)
                         $('.modal').modal('close');
                         console.log(data)
                         M.toast({
-                            html: "Friend Added"
+                            html: data.message
                         })
                         location.reload()
                     },
@@ -472,13 +498,19 @@ console.log(mode)
                         if (xhr.status >= 300) {
                             var data = JSON.parse(xhr.responseText);
                             M.toast({
-                                html: data.err
+                                html: data.message
                             })
+                            return false
                         }
                     }
+
                 });
             })
         })
+        $(window).load(function() {
+		// Animate loader off screen
+		$(".progress").fadeOut("slow");;
+	});
     </script>
 
     <!-- adding material js  -->

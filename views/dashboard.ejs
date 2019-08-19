@@ -15,6 +15,8 @@
   <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+  
 </head>
 
 <body>
@@ -23,114 +25,130 @@
     <div class="nav-wrapper container"><a class="flow-text">Expense Manager</a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
-          <li id="userIntro"></li>
-      <li><a href="#yourAccounts">Your Accounts</a></li>
-      <li><a href="#friendAccount">Friend Accounts</a></li>
-      <li><a href="/users/logout">logout</a></li>
-    </ul>
+        <li id="userIntro"></li>
+        <li><a href="#yourAccounts">Your Accounts</a></li>
+        <li><a href="#friendAccount">Friend Accounts</a></li>
+        <li><a href="/users/logout">logout</a></li>
+      </ul>
     </div>
   </nav>
+  <div class="progress">
+      <div class="indeterminate indigo"></div>
+  </div>
   <ul class="sidenav" id="mobile-demo">
-      <li><a href="/users/logout">logout</a></li>
-      <ul class="section table-of-contents">
-          <li><a href="#yourAccounts">Your Accounts</a></li>
-          <li><a href="#friendAccount">friendAccount</a></li>
-        </ul>
+    <li><a href="/users/logout">logout</a></li>
+    <ul class="section table-of-contents">
+      <li><a href="#yourAccounts">Your Accounts</a></li>
+      <li><a href="#friendAccount">friendAccount</a></li>
     </ul>
+  </ul>
   <div class="col hide-on-small-only m3 l2 right">
-     
-    </div>
+
+  </div>
   <!-- navbar closed -->
 
   <!-- Main body starts here -->
   <main>
 
-    <!-- Account container contains cards of accounts of current user -->
+    <!-- Account container contains cards of accounts of current user and his friends -->
     <div class="container">
-      <!-- headers -->
+      <!-- Accessing personal accounts -->
       <br>
-      <span class="section scrollspy flow-text" id="yourAccounts" class=> Your Accounts</span><span class="right"><i>Manage personal accounts</i></span>
+      <span class="section scrollspy flow-text" id="yourAccounts" class=> Your Accounts</span><span
+        class="right"><i>Manage personal accounts</i></span>
       <hr>
+
       <!-- loop through data which was pased from backed api getAccountByUserId -->
       <div class="row">
-          <% data.forEach(function(account){ %>
-          <div class="col s12 m4">
-              <div class="card white hoverable z-depth-2">
-                  <div class="card-content">
-                    <span class="card-title indigo-text"><strong>  <%= account.accountName %> 
-                      <a class=' right white-text dropdown-trigger idHolder'data-target='"dp1"'>
-                        <i class="material-icons">more_vert</i>
-                      </a> </strong></span>
-                    <blockquote> Owner  </blockquote>
-                     <%= account.owner.email %>   
-                  <% if(account.invites.length > 0) { %>
-                    <blockquote>shared With <%=account.invites.length%> friends</blockquote>
-                        <i class="truncate">
-                                <% for(i=0;i < account.invites.length; i++)
+        <% data.forEach(function(account){ %>
+        <div class="col s12 m4">
+          <div class="card white hoverable z-depth-2">
+            <div class="card-content">
+              <span class="card-title indigo-text"><strong> <%= account.accountName %>
+                  <a class='right indigo-text dropdown-trigger idHolder' id="<%= account._id %>" data-target='"dp1"'>
+                    <i class="material-icons">more_vert</i>
+                  </a> </strong></span>
+              <blockquote> Owner </blockquote>
+              <%= account.owner.email %>
+              <% if(account.invites.length > 0) { %>
+              <blockquote>shared With <%=account.invites.length%> friends</blockquote>
+              <i class="truncate">
+                <% for(i=0;i < account.invites.length; i++)
                                 { %>
-                                  <%= account.invites[i] %>,
-                                <%}%>
+                <%= account.invites[i] %>,
+                <%}%>
                               </i>
                       <%}else{%>
-                        <blockquote>Not Shared</blockquote>
-                        <%}%>
+                <blockquote>Not Shared</blockquote>
+                <%}%>
                   </div>
                   <div class="card-action indigo darken-4 ">
                       <a href="/transections/<%= account._id %>" class="white-text">View Account</a>
-                    </div>
-                </div>
+            </div>
           </div>
-          <% }); %>
-     
+        </div>
+        <% }); %>
+
       </div>
-      </div>
-    
-      <div class="container">
-          <!-- headers -->
-          <br>
-          <span class="flow-text section scrollspy" id="friendAccount">  friends Accounts</span>
-          <span class="right"><i>accounts shared by your friends to transfer amount </i></span>
-          <hr>
-          <!-- loop through data which was pased from backed api getAccountByUserId -->
+    </div>
+
+    <div class="container">
+      <!-- Accessing Friends Account-->
+      <br>
+      <span class="flow-text section scrollspy" id="friendAccount"> friends Accounts</span>
+      <span class="right"><i>accounts shared by your friends to transfer amount </i></span>
+      <hr>
+      <!-- loop through data which was pased from backed api getAccountByUserId -->
+      <div class="row">
+        <% if(friend.length <=0 ) {%>
           <div class="row">
-              <% friend.forEach(function(account){ %>
-              <div class="col s12 m4">
-                  <div class="card white hoverable z-depth-2">
-                      <div class="card-content">
-                        <span class="card-title indigo-text"><strong>  <%= account.accountName %> 
-                          <a class=' right white-text dropdown-trigger idHolder'data-target='"dp1"'>
-                            <i class="material-icons">more_vert</i>
-                          </a> </strong></span>
-                        <p></br>
-                          <blockquote> Owner <%= account.owner.firstName %> </blockquote>
-                     <%= account.owner.email %>   
-                  <% if(account.invites.length > 0) { %>
-                    <blockquote>shared With <%=account.invites.length%> friends</blockquote>
-                        <i class="truncate">
-                                <% for(i=0;i < account.invites.length; i++)
+              <div class="col s12 m12">
+           
+                <div class="card-panel indigo lighten-4 center-align">
+                  <span class="indigo-text "> 
+                    <i class="material-icons large center-align">sentiment_dissatisfied</i>
+                    <br>
+                    No friend Shared Accounts with you. Ask them to add. After that you can transfer amount to their accounts</span> 
+                </div>
+              </div>
+            </div>
+        <%}%>
+        <% friend.forEach(function(account){ %>
+        <div class="col s12 m4">
+          <div class="card white hoverable z-depth-2">
+            <div class="card-content">
+              <span class="card-title indigo-text"><strong> <%= account.accountName %>
+                </strong></span>
+              <p></br>
+                <blockquote> Owner <%= account.owner.firstName %> </blockquote>
+                <%= account.owner.email %>
+                <% if(account.invites.length > 0) { %>
+                <blockquote>shared With <%=account.invites.length%> friends</blockquote>
+                <i class="truncate">
+                  <% for(i=0;i < account.invites.length; i++)
                                 { %>
-                                  <%= account.invites[i] %>,
-                                <%}%>
+                  <%= account.invites[i] %>,
+                  <%}%>
                               </i>
                       <%}else{%>
-                        <blockquote>Not Shared</blockquote>
-                        <%}%>
+                  <blockquote>Not Shared</blockquote>
+                  <%}%>
                                             </div>
                       <div class="card-action indigo darken-4 ">
                           <a href="/transections/<%= account._id %>" class="white-text">View Account</a>
-                        </div>
-                    </div>
-              </div>
-              <% }); %>
+            </div>
           </div>
-          </div>
-    
+        </div>
+        <% }); %>
+      </div>
+    </div>
+
     <!-- loop and container ends -->
 
     <!-- Dropdown menu Structure to edit and remove account -->
     <ul id='"dp1"' class='dropdown-content black-text' style="width: 800px !important">
-      <li><a href="#editNameModal" class="modal-trigger">edit name</a></li>
-      <li><a class="modal-trigger" href="#deleteModal">Modal</a></li>
+      <li><a href="#editNameModal" class="modal-trigger">Edit name</a></li>
+      <li><a class="modal-trigger" href="#deleteModal">Delete</a></li>
     </ul>
 
 
@@ -232,15 +250,22 @@
       $('.fixed-action-btn').floatingActionButton();
       $('.sidenav').sidenav();
 
+      //setting up user introduction at navbar from cookie pushed at login time
+
+      var userIntro = Cookies.get('firstName')
+      console.log(userIntro)
+      $('#userIntro').text("Hello " + userIntro)
 
       // idHolder to hold the id of account which is clicked for any action from dropdown structure
+
       var idHolder;
       $(".idHolder").on('click', function () {
         idHolder = $(this).attr('id')
         console.log(idHolder)
       })
 
-      //Handling delete account request without page reload
+      //Handling delete account request
+
       $('#deleteButton').click(function () {
         $.ajax({
           type: 'DELETE',
@@ -251,8 +276,8 @@
             M.toast({
               html: "Account deleted"
             })
-            $('#' + idHolder).parent().parent().parent().fadeOut();
-            //location.reload()
+            $('#' + idHolder).parent().parent().parent().parent().fadeOut();
+            location.reload()
           },
           error: function (xhr, ajaxOptions, thrownError, data) {
             if (xhr.status >= 300) {
@@ -261,17 +286,14 @@
                 html: data.err
               })
             }
+            return false;
           }
         });
       })
 
-      //setting up user introduction at navbar from cookie pushed at login time
 
-      var userIntro = Cookies.get('firstName')
-      console.log(userIntro)
-      $('#userIntro').text("Hello " + userIntro)
+      //Handling Edit account name 
 
-      //Handling Edit account name Without reloading page 
       $('#editAccountNameForm').on('submit', function () {
         var newName = $('#newName').val();
         var accountId = idHolder;
@@ -292,20 +314,20 @@
             M.toast({
               html: data.message
             })
-            $('#' + idHolder).parent().siblings().text(newName)
-            // location.reload()
+            location.reload()
           },
           error: function (xhr, ajaxOptions, thrownError, data) {
             if (xhr.status >= 300) {
               var data = JSON.parse(xhr.responseText);
-              M.toast({ html: data.message})
+              M.toast({ html: data.message })
             }
+            return false;
           }
         });
         return false;
       });
 
-      //Handling add new account with reloading page 
+      //Handling add new account request 
       $('#addAccountForm').on('submit', function () {
 
         var userId = Cookies.get('userId');
@@ -334,14 +356,20 @@
                 html: data.message
               })
             }
+            return false;
           }
         });
         return false;
       });
     });
+    $(window).load(function() {
+		// Animate loader off screen
+		$(".progress").fadeOut("slow");;
+	});
   </script>
 
-<!-- adding material js  -->
+  <!-- adding material js  -->
   <script src="/materialize/js/materialize.js"></script>
 </body>
+
 </html>
