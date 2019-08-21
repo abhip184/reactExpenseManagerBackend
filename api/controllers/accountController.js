@@ -130,9 +130,9 @@ exports.addFriend = async (req, res) => {
     })
 
 }
-exports.getAccountByUserId = async (req, res, next) => {
+exports.getAccountsByUserId = async (req, res, next) => {
 
-    const userId = req.params.id;
+    const userId = req.userAuth.id;
 
     //checking if user is accessing own account or not 
     var ownAccounts = await Account.find({
@@ -144,17 +144,10 @@ exports.getAccountByUserId = async (req, res, next) => {
             })
         })
 
-    if (ownAccounts.length < 1) {
-        return res.status(409).json({
-            message: "unauthorize access to accounts"
-        })
-    }
     console.log(ownAccounts)
     const email = req.userAuth.email
     console.log("email" + email)
 
-    if (ownAccounts[0].owner.email == email) {
-        // accessing friend's account
         var friendAccounts = await Account.find({
             invites: email
         }).populate('owner')
@@ -173,11 +166,6 @@ exports.getAccountByUserId = async (req, res, next) => {
             friend: friendAccounts
         })
 
-    } else {
-        return res.status(409).json({
-            message: "unauthorize access to accounts"
-        })
-    }
 }
 
 exports.deleteAccount = (req, res, next) => {

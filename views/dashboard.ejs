@@ -21,7 +21,7 @@
 
 <body>
   <!-- navbar starts here -->
-  <nav class="indigo" role="navigation">
+  <nav class="indigo z-depth-5" role="navigation">
     <div class="nav-wrapper container"><a class="flow-text">Expense Manager</a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
@@ -32,7 +32,7 @@
       </ul>
     </div>
   </nav>
-  <div class="progress">
+  <div class="progress" style="position:absolute" >
       <div class="indeterminate indigo"></div>
   </div>
   <ul class="sidenav" id="mobile-demo">
@@ -62,7 +62,7 @@
       <div class="row">
         <% data.forEach(function(account){ %>
         <div class="col s12 m4">
-          <div class="card white hoverable z-depth-2">
+          <div class="card white small hoverable z-depth-2">
             <div class="card-content">
               <span class="card-title indigo-text"><strong> <%= account.accountName %>
                   <a class='right indigo-text dropdown-trigger idHolder' id="<%= account._id %>" data-target='"dp1"'>
@@ -96,7 +96,7 @@
       <!-- Accessing Friends Account-->
       <br>
       <span class="flow-text section scrollspy" id="friendAccount"> friends Accounts</span>
-      <span class="right"><i>accounts shared by your friends to transfer amount </i></span>
+      <span class="right hide-on-small-only "><i>accounts shared by your friends to transfer amount </i></span>
       <hr>
       <!-- loop through data which was pased from backed api getAccountByUserId -->
       <div class="row">
