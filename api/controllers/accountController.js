@@ -7,7 +7,7 @@ exports.addAccount = async (req, res, next) => {
     //checking if name of account is already taken by current user
     var account = await Account.find({
         accountName: req.body.accountName,
-        owner: req.body.owner
+        owner: req.userAuth.id
     })
         .catch(err => {
             console.log(err);
@@ -27,7 +27,7 @@ exports.addAccount = async (req, res, next) => {
         _id: new mongoose.Types.ObjectId(),
         accountName: req.body.accountName,
         currentBalance: req.body.currentBalance,
-        owner: req.body.owner
+        owner: req.userAuth.id
     });
 
     // save account
@@ -148,43 +148,48 @@ exports.getAccountsByUserId = async (req, res, next) => {
     const email = req.userAuth.email
     console.log("email" + email)
 
-        var friendAccounts = await Account.find({
-            invites: email
-        }).populate('owner')
-            .catch(err => {
-                return res.status(500).json({
-                    message: err
-                })
-            })
-
-        console.log(friendAccounts)
-        console.log(ownAccounts)
-
-        // rendering both accounts to dashboard
-        return res.render('dashboard', {
-            data: ownAccounts,
-            friend: friendAccounts
-        })
-
-}
-
-exports.deleteAccount = (req, res, next) => {
-
-    const accountId = req.params.id;
-
-    Account.remove({
-        _id: accountId
-    })
-        .then(result => {
-
-            return res.status(200).json({
-                message: "account removed"
-            })
-        })
+    var friendAccounts = await Account.find({
+        invites: email
+    }).populate('owner')
         .catch(err => {
             return res.status(500).json({
                 message: err
             })
         })
 
+    console.log(friendAccounts)
+    console.log(ownAccounts)
+
+    // rendering both accounts to dashboard
+    return res.render('dashboard', {
+        data: ownAccounts,
+        friend: friendAccounts
+    })
+
+}
+
+exports.deleteAccount = async (req, res, next) => {
+
+    const accountId = req.params.id;
+
+    await Account.remove({ _id: accountId })
+        .catch(err => {
+            console.log(err)
+            return res.status(500).json({
+                message: err
+            })
+        })
+
+    await Transection.remove({ $or: [{ toAccount: accountId }, { fromAccount: accountId }] })
+        .catch(err => {
+            console.log(err)
+            return res.status(500).json({
+                message: err
+            })
+        })
+
+
+    return res.status(200).json({
+        message: "account removed"
+    })
 }

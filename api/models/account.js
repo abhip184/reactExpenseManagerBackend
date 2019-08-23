@@ -8,8 +8,6 @@ const accountSchema = mongoose.Schema({
     invites:[{type:String,}],
 })
 
- accountSchema.post('save', function(doc) {
-    console.log('%s has been saved', doc._id);
-  });
+
 
 module.exports = mongoose.model('Account',accountSchema);

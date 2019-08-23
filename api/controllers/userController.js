@@ -28,6 +28,7 @@ exports.signup_user = async (req, res, next) => {
     //getting hash for password
     const hash = await bcrypt.hash(req.body.password, 10)
         .catch(err => {
+            console.log(err)
             return res.status(409).json({
                 message: "error in bcrypt"
             })
@@ -50,6 +51,18 @@ exports.signup_user = async (req, res, next) => {
             })
         })
 
+        //genrating token
+            const token = jwt.sign({
+                email: result.email,
+                id: result._id
+            },
+                process.env.jwtkey,
+                {
+                    expiresIn: "24h"
+                }
+            );
+        
+
         //mailing new user a welcome mail
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -60,7 +73,7 @@ exports.signup_user = async (req, res, next) => {
     });
 
     var mailOptions = {
-        from: 'abhiabhiabhi123.apgmail.com',
+        from: 'abhiabhiabhi123.ap@gmail.com',
         to: result.email,
         subject: "Welcome" + result.firstName,
         html: '<h1>welcome to expense manager! </h1>'
@@ -78,6 +91,7 @@ exports.signup_user = async (req, res, next) => {
     //sending new user
     return res.status(201).json({
         message: "Sign up success",
+        token:token,
         userId: result._id,
         email: result.email,
         firstName: result.firstName,
@@ -105,6 +119,7 @@ exports.login_user = async (req, res, next) => {
                 message: 'Username Or Password not Matched'
             })
         })
+
     if (result) {
         const token = jwt.sign({
             email: user[0].email,
@@ -135,8 +150,6 @@ exports.login_user = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
     res.clearCookie("token");
-    res.clearCookie("userId");
     res.clearCookie("firstName");
-    res.clearCookie("email");
     res.render('index');
 }
