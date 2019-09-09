@@ -3,28 +3,7 @@ const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
 const User = require('../models/user');
 var nodemailer = require('nodemailer');
-exports.signup_user = async (req, res, next) => {
-    
-    //checking user email already exist or not
-    var user = await User.find({ email: req.body.email })
-        .catch(err => {
-            res.status(500).json({
-                error: err
-            })
-        })
-
-    if (user.length >= 1) {
-        return res.status(409).json({
-            message: "email exists"
-        })
-    }
-
-    //clearing existing cookies
-    res.clearCookie("token");
-    res.clearCookie("userId");
-    res.clearCookie("firstName");
-    res.clearCookie("email");
-    
+exports.signup_user = async (req, res) => {
     //getting hash for password
     const hash = await bcrypt.hash(req.body.password, 10)
         .catch(err => {
@@ -54,7 +33,9 @@ exports.signup_user = async (req, res, next) => {
         //genrating token
             const token = jwt.sign({
                 email: result.email,
-                id: result._id
+                id: result._id,
+                firstName: result.firstName,
+                lastName: result.lastName,
             },
                 process.env.jwtkey,
                 {
@@ -63,12 +44,11 @@ exports.signup_user = async (req, res, next) => {
             );
         
 
-        //mailing new user a welcome mail
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: 'abhiabhiabhi123.ap@gmail.com',
-            pass: '#aaditya'
+            pass: process.env.mailpass
         }
     });
 
@@ -76,7 +56,7 @@ exports.signup_user = async (req, res, next) => {
         from: 'abhiabhiabhi123.ap@gmail.com',
         to: result.email,
         subject: "Welcome" + result.firstName,
-        html: '<h1>welcome to expense manager! </h1>'
+        html: '<h1>Welcome to expense manager! </h1> <h2> <a href="http://192.168.0.125:3000/login"> click here</a> to get started </h2>'
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -91,21 +71,17 @@ exports.signup_user = async (req, res, next) => {
     //sending new user
     return res.status(201).json({
         message: "Sign up success",
+        userData:{
         token:token,
         userId: result._id,
         email: result.email,
         firstName: result.firstName,
+        lastName: result.lastName
+        }
     })
 }
 
 exports.login_user = async (req, res, next) => {
-
-    res.clearCookie("token");
-    res.clearCookie("userId");
-    res.clearCookie("firstName");
-    res.clearCookie("email");
-
-
     var user = await User.find({ email: req.body.email })
 
     if (user.length < 1) {
@@ -123,7 +99,9 @@ exports.login_user = async (req, res, next) => {
     if (result) {
         const token = jwt.sign({
             email: user[0].email,
-            id: user[0]._id
+            id: user[0]._id,
+            firstName:user[0].firstName,
+            lastName:user[0].lastName
         },
             process.env.jwtkey,
             {
@@ -133,11 +111,14 @@ exports.login_user = async (req, res, next) => {
 
 
         return res.status(200).json({
-            message: 'login success !!',
+            message: "Login success",
+            userData:{
+            token:token,
             userId: user[0]._id,
-            token: token,
             email: user[0].email,
-            firstName: user[0].firstName
+            firstName: user[0].firstName,
+            lastName: user[0].lastName
+            }
         })
     }
     else {
@@ -146,10 +127,4 @@ exports.login_user = async (req, res, next) => {
         })
 
     }
-}
-
-exports.logout = (req, res, next) => {
-    res.clearCookie("token");
-    res.clearCookie("firstName");
-    res.render('index');
 }

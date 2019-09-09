@@ -4,7 +4,7 @@ const accountSchema = mongoose.Schema({
     _id:mongoose.Schema.Types.ObjectId,
     accountName: {type:String, required: true}, 
     currentBalance:{type: Number, required:true},
-    owner:{type: mongoose.Schema.Types.ObjectId, ref:'User', required:true},
+    owner:{type: mongoose.Schema.Types.ObjectId, ref:'User'},
     invites:[{type:String,}],
 })
 
